@@ -4,6 +4,7 @@ module DayOne exposing (answers)
 answers : List ( String, String )
 answers =
     [ ( "Day 1 part 1", part1 )
+    , ( "Day 1 part 2", part2 )
     ]
 
 
@@ -23,6 +24,13 @@ part1 =
     answer finalPosition.position
 
 
+part2 : String
+part2 =
+    finalPosition.firstDuplicate
+        |> Maybe.map answer
+        |> Maybe.withDefault "No such place"
+
+
 finalPosition : State
 finalPosition =
     List.foldl update init instructions
@@ -31,6 +39,7 @@ finalPosition =
 type Instruction
     = L Int
     | R Int
+    | S Int
 
 
 type Facing
@@ -47,6 +56,8 @@ type alias Position =
 type alias State =
     { position : Position
     , facing : Facing
+    , visited : List Position
+    , firstDuplicate : Maybe Position
     }
 
 
@@ -54,18 +65,47 @@ init : State
 init =
     { position = ( 0, 0 )
     , facing = North
+    , visited = []
+    , firstDuplicate = Nothing
     }
 
 
 update : Instruction -> State -> State
-update instruction { position, facing } =
+update instruction { position, facing, visited, firstDuplicate } =
     let
         newFacing =
             turn instruction facing
+
+        distance =
+            blocks instruction
+
+        newPosition =
+            move (S 1) newFacing position
+
+        newFirstDuplicate =
+            case firstDuplicate of
+                Nothing ->
+                    if List.member newPosition visited then
+                        Just newPosition
+                    else
+                        Nothing
+
+                Just duplicate ->
+                    Just duplicate
     in
-        { position = move instruction newFacing position
-        , facing = newFacing
-        }
+        if distance <= 1 then
+            { position = newPosition
+            , facing = newFacing
+            , visited = visited
+            , firstDuplicate = newFirstDuplicate
+            }
+        else
+            update (S (distance - 1))
+                { position = newPosition
+                , facing = newFacing
+                , visited = newPosition :: visited
+                , firstDuplicate = newFirstDuplicate
+                }
 
 
 blocks : Instruction -> Int
@@ -75,6 +115,9 @@ blocks instruction =
             x
 
         R x ->
+            x
+
+        S x ->
             x
 
 
@@ -124,6 +167,9 @@ turn instruction facing =
 
                 West ->
                     North
+
+        S _ ->
+            facing
 
 
 instructions : List Instruction
