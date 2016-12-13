@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (Html, ul, li, text, strong)
+import DayOne
 
 
 main : Html msg
@@ -20,4 +21,4 @@ toLi ( name, answer ) =
 
 answers : List ( String, String )
 answers =
-    []
+    DayOne.answers
