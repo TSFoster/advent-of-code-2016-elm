@@ -8,155 +8,186 @@ type Instruction
     | D
 
 
-type Key
-    = One
-    | Two
-    | Three
-    | Four
-    | Five
-    | Six
-    | Seven
-    | Eight
-    | Nine
+type alias State =
+    { keysAbove : List (List (Maybe Char))
+    , keysToLeft : List (Maybe Char)
+    , currentKey : Char
+    , keysToRight : List (Maybe Char)
+    , keysBelow : List (List (Maybe Char))
+    }
 
 
 answers : List ( String, String )
 answers =
     [ ( "Day 2 part 1", part1 )
+    , ( "Day 2 part 2", part2 )
     ]
 
 
 part1 : String
 part1 =
+    answer initPart1
+
+
+part2 : String
+part2 =
+    answer initPart2
+
+
+answer : State -> String
+answer state =
+    process instructions state
+        |> String.fromList
+
+
+process : List (List Instruction) -> State -> List Char
+process instructions state =
     instructions
-        |> List.map processLine
-        |> List.map toString
-        |> String.join " "
+        |> List.scanl processLine state
+        |> List.map .currentKey
+        |> List.tail
+        |> Maybe.withDefault []
 
 
-processLine : List Instruction -> Key
+processLine : List Instruction -> State -> State
 processLine =
-    List.foldl moveOne Five
+    List.foldl processInstruction |> flip
 
 
-moveOne : Instruction -> Key -> Key
-moveOne dir key =
-    case dir of
+processInstruction : Instruction -> State -> State
+processInstruction instruction state =
+    case instruction of
         L ->
-            case key of
-                One ->
-                    One
+            case state.keysToLeft of
+                [] ->
+                    state
 
-                Two ->
-                    One
+                Nothing :: _ ->
+                    state
 
-                Three ->
-                    Two
-
-                Four ->
-                    Four
-
-                Five ->
-                    Four
-
-                Six ->
-                    Five
-
-                Seven ->
-                    Seven
-
-                Eight ->
-                    Seven
-
-                Nine ->
-                    Eight
+                (Just key) :: keys ->
+                    { state
+                        | keysToLeft = keys
+                        , currentKey = key
+                        , keysToRight = Just state.currentKey :: state.keysToRight
+                    }
 
         R ->
-            case key of
-                One ->
-                    Two
+            case state.keysToRight of
+                [] ->
+                    state
 
-                Two ->
-                    Three
+                Nothing :: _ ->
+                    state
 
-                Three ->
-                    Three
-
-                Four ->
-                    Five
-
-                Five ->
-                    Six
-
-                Six ->
-                    Six
-
-                Seven ->
-                    Eight
-
-                Eight ->
-                    Nine
-
-                Nine ->
-                    Nine
-
-        U ->
-            case key of
-                One ->
-                    One
-
-                Two ->
-                    Two
-
-                Three ->
-                    Three
-
-                Four ->
-                    One
-
-                Five ->
-                    Two
-
-                Six ->
-                    Three
-
-                Seven ->
-                    Four
-
-                Eight ->
-                    Five
-
-                Nine ->
-                    Six
+                (Just key) :: keys ->
+                    { state
+                        | keysToLeft = Just state.currentKey :: state.keysToLeft
+                        , currentKey = key
+                        , keysToRight = keys
+                    }
 
         D ->
-            case key of
-                One ->
-                    Four
+            case state.keysBelow of
+                [] ->
+                    state
 
-                Two ->
-                    Five
+                keys :: rest ->
+                    let
+                        fromLeft =
+                            List.length state.keysToLeft
 
-                Three ->
-                    Six
+                        toLeft =
+                            List.take fromLeft keys |> List.reverse
 
-                Four ->
-                    Seven
+                        others =
+                            List.drop fromLeft keys
 
-                Five ->
-                    Eight
+                        current =
+                            List.head others |> Maybe.withDefault Nothing
 
-                Six ->
-                    Nine
+                        toRight =
+                            List.tail others |> Maybe.withDefault []
 
-                Seven ->
-                    Seven
+                        oldLine =
+                            List.reverse state.keysToLeft ++ (Just state.currentKey :: state.keysToRight)
+                    in
+                        case current of
+                            Nothing ->
+                                state
 
-                Eight ->
-                    Eight
+                            Just key ->
+                                { state
+                                    | keysAbove = oldLine :: state.keysAbove
+                                    , keysToLeft = toLeft
+                                    , currentKey = key
+                                    , keysToRight = toRight
+                                    , keysBelow = rest
+                                }
 
-                Nine ->
-                    Eight
+        U ->
+            case state.keysAbove of
+                [] ->
+                    state
+
+                keys :: rest ->
+                    let
+                        fromLeft =
+                            List.length state.keysToLeft
+
+                        toLeft =
+                            List.take fromLeft keys |> List.reverse
+
+                        others =
+                            List.drop fromLeft keys
+
+                        current =
+                            List.head others |> Maybe.withDefault Nothing
+
+                        toRight =
+                            List.tail others |> Maybe.withDefault []
+
+                        oldLine =
+                            List.reverse state.keysToLeft ++ (Just state.currentKey :: state.keysToRight)
+                    in
+                        case current of
+                            Nothing ->
+                                state
+
+                            Just key ->
+                                { state
+                                    | keysAbove = rest
+                                    , keysToLeft = toLeft
+                                    , currentKey = key
+                                    , keysToRight = toRight
+                                    , keysBelow = oldLine :: state.keysBelow
+                                }
+
+
+initPart1 : State
+initPart1 =
+    { keysAbove = [ [ Just '1', Just '2', Just '3' ] ]
+    , keysToLeft = [ Just '4' ]
+    , currentKey = '5'
+    , keysToRight = [ Just '6' ]
+    , keysBelow = [ [ Just '7', Just '8', Just '9' ] ]
+    }
+
+
+initPart2 : State
+initPart2 =
+    { keysAbove =
+        [ [ Nothing, Just '2', Just '3', Just '4' ]
+        , [ Nothing, Nothing, Just '1' ]
+        ]
+    , keysToLeft = []
+    , currentKey = '5'
+    , keysToRight = [ Just '6', Just '7', Just '8', Just '9' ]
+    , keysBelow =
+        [ [ Nothing, Just 'A', Just 'B', Just 'C' ]
+        , [ Nothing, Nothing, Just 'D' ]
+        ]
+    }
 
 
 instructions : List (List Instruction)
