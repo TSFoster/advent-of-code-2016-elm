@@ -7,6 +7,7 @@ import Char
 answers : List ( String, String )
 answers =
     [ ( "Day 4 part 1", part1 )
+    , ( "Day 4 part 2", part2 )
     ]
 
 
@@ -19,12 +20,41 @@ type alias Room =
 
 part1 : String
 part1 =
-    input
-        |> List.filterMap roomFromString
-        |> List.filter roomIsValid
+    validRooms
         |> List.map .id
         |> List.sum
         |> toString
+
+
+part2 : String
+part2 =
+    validRooms
+        |> List.filter (decryptName >> (==) "northpoleobjectstorage")
+        |> List.map (.id >> toString)
+        |> String.join " "
+
+
+decryptName : Room -> String
+decryptName { name, id } =
+    name
+        |> String.toList
+        |> List.map (shiftCharBy id)
+        |> String.fromList
+
+
+shiftCharBy : Int -> Char -> Char
+shiftCharBy n char =
+    ((Char.toCode char) - 97 + n)
+        % 26
+        + 97
+        |> Char.fromCode
+
+
+validRooms : List Room
+validRooms =
+    input
+        |> List.filterMap roomFromString
+        |> List.filter roomIsValid
 
 
 roomIsValid : Room -> Bool
