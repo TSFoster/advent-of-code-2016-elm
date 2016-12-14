@@ -4,18 +4,28 @@ module DayThree exposing (answers)
 answers : List ( String, String )
 answers =
     [ ( "Day 3 part 1", part1 )
+    , ( "Day 3 part 2", part2 )
     ]
 
 
 part1 : String
 part1 =
-    input
-        |> List.map extractLongest
-        |> List.map (Tuple.mapSecond sumTuple)
-        |> List.map firstSmallerThanSecond
-        |> List.filter identity
-        |> List.length
-        |> toString
+    answer input
+
+
+part2 : String
+part2 =
+    answer correctInput
+
+
+answer : List ( Int, Int, Int ) -> String
+answer =
+    List.map extractLongest
+        >> List.map (Tuple.mapSecond sumTuple)
+        >> List.map firstSmallerThanSecond
+        >> List.filter identity
+        >> List.length
+        >> toString
 
 
 firstSmallerThanSecond : ( comparable, comparable ) -> Bool
@@ -39,6 +49,35 @@ extractLongest ( a, b, c ) =
         ( b, ( a, c ) )
     else
         ( c, ( a, b ) )
+
+
+correctInput : List ( Int, Int, Int )
+correctInput =
+    correctOriginalInput input
+
+
+correctOriginalInput : List ( Int, Int, Int ) -> List ( Int, Int, Int )
+correctOriginalInput input =
+    if List.length input < 3 then
+        []
+    else
+        let
+            ( a1, b1, c1 ) =
+                input |> List.head |> Maybe.withDefault ( 0, 0, 0 )
+
+            ( a2, b2, c2 ) =
+                input |> List.drop 1 |> List.head |> Maybe.withDefault ( 0, 0, 0 )
+
+            ( a3, b3, c3 ) =
+                input |> List.drop 2 |> List.head |> Maybe.withDefault ( 0, 0, 0 )
+
+            rest =
+                input |> List.drop 3
+        in
+            ( a1, a2, a3 )
+                :: ( b1, b2, b3 )
+                :: ( c1, c2, c3 )
+                :: correctOriginalInput rest
 
 
 input : List ( Int, Int, Int )
