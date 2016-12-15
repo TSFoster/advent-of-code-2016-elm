@@ -8,6 +8,7 @@ import DayTwo
 import DayThree
 import DayFour
 import DayFive
+import DaySix
 
 
 type Model
@@ -82,4 +83,5 @@ init =
             ++ DayThree.answers
             ++ DayFour.answers
             ++ DayFive.answers
+            ++ DaySix.answers
         )
