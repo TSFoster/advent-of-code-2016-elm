@@ -7,6 +7,7 @@ import Dict exposing (Dict)
 answers : List QandA
 answers =
     [ QandA (Question "Day 6 part 1") part1
+    , QandA (Question "Day 6 part 2") part2
     ]
 
 
@@ -14,12 +15,27 @@ part1 : Answer
 part1 =
     Uncalculated
         (\() ->
-            errorCorrect input
+            errorCorrect (>=) input
         )
 
 
-errorCorrect : List String -> String
-errorCorrect list =
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            errorCorrect
+                (\a b ->
+                    if b == 0 then
+                        True
+                    else
+                        a <= b
+                )
+                input
+        )
+
+
+errorCorrect : (Int -> Int -> Bool) -> List String -> String
+errorCorrect fn list =
     if list == [] then
         ""
     else
@@ -28,15 +44,15 @@ errorCorrect list =
                 uncons list
 
             char =
-                mostCommon chars
+                deduce fn chars
                     |> Maybe.map String.fromChar
                     |> Maybe.withDefault ""
         in
-            char ++ errorCorrect rest
+            char ++ errorCorrect fn rest
 
 
-mostCommon : List comparable -> Maybe comparable
-mostCommon =
+deduce : (Int -> Int -> Bool) -> List comparable -> Maybe comparable
+deduce fn =
     let
         addCounts =
             (flip Dict.update)
@@ -50,7 +66,7 @@ mostCommon =
                 )
 
         getHighestCount key val ( highest, count ) =
-            if val >= count then
+            if fn val count then
                 ( Just key, val )
             else
                 ( highest, count )
