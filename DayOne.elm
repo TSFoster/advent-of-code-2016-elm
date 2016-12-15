@@ -1,10 +1,12 @@
 module DayOne exposing (answers)
 
+import Model exposing (..)
 
-answers : List ( String, String )
+
+answers : List QandA
 answers =
-    [ ( "Day 1 part 1", part1 )
-    , ( "Day 1 part 2", part2 )
+    [ QandA (Question "Day 1 part 1") part1
+    , QandA (Question "Day 1 part 2") part2
     ]
 
 
@@ -19,20 +21,26 @@ answer position =
             |> toString
 
 
-part1 : String
+part1 : Answer
 part1 =
-    answer finalPosition.position
+    Uncalculated
+        (\() ->
+            answer (finalPosition instructions).position
+        )
 
 
-part2 : String
+part2 : Answer
 part2 =
-    finalPosition.firstDuplicate
-        |> Maybe.map answer
-        |> Maybe.withDefault "No such place"
+    Uncalculated
+        (\() ->
+            (finalPosition instructions).firstDuplicate
+                |> Maybe.map answer
+                |> Maybe.withDefault "No such place"
+        )
 
 
-finalPosition : State
-finalPosition =
+finalPosition : List Instruction -> State
+finalPosition instructions =
     List.foldl update init instructions
 
 

@@ -1,5 +1,7 @@
 module DayTwo exposing (answers)
 
+import Model exposing (..)
+
 
 type Instruction
     = L
@@ -17,27 +19,30 @@ type alias State =
     }
 
 
-answers : List ( String, String )
+answers : List QandA
 answers =
-    [ ( "Day 2 part 1", part1 )
-    , ( "Day 2 part 2", part2 )
+    [ QandA (Question "Day 2 part 1") part1
+    , QandA (Question "Day 2 part 2") part2
     ]
 
 
-part1 : String
+part1 : Answer
 part1 =
     answer initPart1
 
 
-part2 : String
+part2 : Answer
 part2 =
     answer initPart2
 
 
-answer : State -> String
+answer : State -> Answer
 answer state =
-    process instructions state
-        |> String.fromList
+    Uncalculated
+        (\() ->
+            process instructions state
+                |> String.fromList
+        )
 
 
 process : List (List Instruction) -> State -> List Char

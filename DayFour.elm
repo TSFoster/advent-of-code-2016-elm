@@ -1,13 +1,14 @@
 module DayFour exposing (answers)
 
+import Model exposing (..)
 import Dict exposing (Dict)
 import Char
 
 
-answers : List ( String, String )
+answers : List QandA
 answers =
-    [ ( "Day 4 part 1", part1 )
-    , ( "Day 4 part 2", part2 )
+    [ QandA (Question "Day 4 part 1") part1
+    , QandA (Question "Day 4 part 2") part2
     ]
 
 
@@ -18,20 +19,26 @@ type alias Room =
     }
 
 
-part1 : String
+part1 : Answer
 part1 =
-    validRooms
-        |> List.map .id
-        |> List.sum
-        |> toString
+    Uncalculated
+        (\() ->
+            validRooms input
+                |> List.map .id
+                |> List.sum
+                |> toString
+        )
 
 
-part2 : String
+part2 : Answer
 part2 =
-    validRooms
-        |> List.filter (decryptName >> (==) "northpoleobjectstorage")
-        |> List.map (.id >> toString)
-        |> String.join " "
+    Uncalculated
+        (\() ->
+            validRooms input
+                |> List.filter (decryptName >> (==) "northpoleobjectstorage")
+                |> List.map (.id >> toString)
+                |> String.join " "
+        )
 
 
 decryptName : Room -> String
@@ -50,8 +57,8 @@ shiftCharBy n char =
         |> Char.fromCode
 
 
-validRooms : List Room
-validRooms =
+validRooms : List String -> List Room
+validRooms input =
     input
         |> List.filterMap roomFromString
         |> List.filter roomIsValid

@@ -1,21 +1,29 @@
 module DayThree exposing (answers)
 
+import Model exposing (..)
 
-answers : List ( String, String )
+
+answers : List QandA
 answers =
-    [ ( "Day 3 part 1", part1 )
-    , ( "Day 3 part 2", part2 )
+    [ QandA (Question "Day 3 part 1") part1
+    , QandA (Question "Day 3 part 2") part2
     ]
 
 
-part1 : String
+part1 : Answer
 part1 =
-    answer input
+    Uncalculated
+        (\() ->
+            answer input
+        )
 
 
-part2 : String
+part2 : Answer
 part2 =
-    answer correctInput
+    Uncalculated
+        (\() ->
+            answer (correctInput input)
+        )
 
 
 answer : List ( Int, Int, Int ) -> String
@@ -51,13 +59,8 @@ extractLongest ( a, b, c ) =
         ( c, ( a, b ) )
 
 
-correctInput : List ( Int, Int, Int )
-correctInput =
-    correctOriginalInput input
-
-
-correctOriginalInput : List ( Int, Int, Int ) -> List ( Int, Int, Int )
-correctOriginalInput input =
+correctInput : List ( Int, Int, Int ) -> List ( Int, Int, Int )
+correctInput input =
     if List.length input < 3 then
         []
     else
@@ -77,7 +80,7 @@ correctOriginalInput input =
             ( a1, a2, a3 )
                 :: ( b1, b2, b3 )
                 :: ( c1, c2, c3 )
-                :: correctOriginalInput rest
+                :: correctInput rest
 
 
 input : List ( Int, Int, Int )
