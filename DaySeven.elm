@@ -6,6 +6,7 @@ import Model exposing (..)
 answers : List QandA
 answers =
     [ QandA (Question "Day 7 part 1") part1
+    , QandA (Question "Day 7 part 2") part2
     ]
 
 
@@ -29,6 +30,17 @@ part1 =
         )
 
 
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            List.filterMap toIPv7 input
+                |> List.filter supportsSSL
+                |> List.length
+                |> toString
+        )
+
+
 supportsTLS : IPv7 -> Bool
 supportsTLS ip =
     let
@@ -41,6 +53,49 @@ supportsTLS ip =
                 |> List.any containsABBA
     in
         noHypernetContainsABBA && supernetContainsABBA
+
+
+supportsSSL : IPv7 -> Bool
+supportsSSL ip =
+    let
+        abaSequences =
+            List.filter (not << isHypernet) ip
+                |> List.map getABAs
+                |> List.concat
+
+        babSequences =
+            List.filter isHypernet ip
+                |> List.map getABAs
+                |> List.concat
+                |> List.map flipTuple
+    in
+        List.map ((flip List.member) babSequences) abaSequences
+            |> List.any identity
+
+
+getABAs : Sequence -> List ( Char, Char )
+getABAs =
+    let
+        getPossibleCombos : List Char -> List ( Char, Char, Char )
+        getPossibleCombos chars =
+            case chars of
+                a :: b :: c :: rest ->
+                    ( a, b, c ) :: getPossibleCombos (b :: c :: rest)
+
+                _ ->
+                    []
+
+        getABA : ( Char, Char, Char ) -> Maybe ( Char, Char )
+        getABA ( a, b, c ) =
+            if a == c && a /= b then
+                Just ( a, b )
+            else
+                Nothing
+    in
+        getSequence
+            >> String.toList
+            >> getPossibleCombos
+            >> List.filterMap getABA
 
 
 isHypernet : Sequence -> Bool
@@ -114,6 +169,11 @@ toIPv7 string =
             List.map (Maybe.withDefault []) listOfMaybes
                 |> List.concat
                 |> Just
+
+
+flipTuple : ( a, b ) -> ( b, a )
+flipTuple ( a, b ) =
+    ( b, a )
 
 
 input : List String
