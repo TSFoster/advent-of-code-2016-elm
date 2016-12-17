@@ -6,6 +6,7 @@ import Model exposing (..)
 answers : List QandA
 answers =
     [ QandA (Question "Day 8 part 1") part1
+    , QandA (Question "Day 8 part 2") part2
     ]
 
 
@@ -19,6 +20,134 @@ part1 =
                 |> List.length
                 |> toString
         )
+
+
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            List.foldl processInstruction (init 50 6) input
+                |> interpretScreen
+        )
+
+
+interpretScreen : Screen -> String
+interpretScreen screen =
+    case screen of
+        a :: b :: c :: d :: e :: rest ->
+            interpretLetter [ a, b, c, d, e ] ++ interpretScreen rest
+
+        _ ->
+            ""
+
+
+interpretLetter : Screen -> String
+interpretLetter screen =
+    let
+        letter =
+            transpose screen
+                |> List.map
+                    (List.map
+                        (\b ->
+                            if b then
+                                '#'
+                            else
+                                ' '
+                        )
+                    )
+                |> List.concat
+                |> String.fromList
+
+        a =
+            ""
+                ++ " ##  "
+                ++ "#  # "
+                ++ "#  # "
+                ++ "#### "
+                ++ "#  # "
+                ++ "#  # "
+
+        b =
+            ""
+                ++ "###  "
+                ++ "#  # "
+                ++ "###  "
+                ++ "#  # "
+                ++ "#  # "
+                ++ "###  "
+
+        f =
+            ""
+                ++ "#### "
+                ++ "#    "
+                ++ "###  "
+                ++ "#    "
+                ++ "#    "
+                ++ "#    "
+
+        j =
+            ""
+                ++ "  ## "
+                ++ "   # "
+                ++ "   # "
+                ++ "   # "
+                ++ "#  # "
+                ++ " ##  "
+
+        p =
+            ""
+                ++ "###  "
+                ++ "#  # "
+                ++ "#  # "
+                ++ "###  "
+                ++ "#    "
+                ++ "#    "
+
+        s =
+            ""
+                ++ " ### "
+                ++ "#    "
+                ++ "#    "
+                ++ " ##  "
+                ++ "   # "
+                ++ "###  "
+
+        u =
+            ""
+                ++ "#  # "
+                ++ "#  # "
+                ++ "#  # "
+                ++ "#  # "
+                ++ "#  # "
+                ++ " ##  "
+
+        z =
+            ""
+                ++ "#### "
+                ++ "   # "
+                ++ "  #  "
+                ++ " #   "
+                ++ "#    "
+                ++ "#### "
+    in
+        if letter == a then
+            "A"
+        else if letter == b then
+            "B"
+        else if letter == f then
+            "F"
+        else if letter == j then
+            "J"
+        else if letter == p then
+            "P"
+        else if letter == s then
+            "S"
+        else if letter == u then
+            "U"
+        else if letter == z then
+            "Z"
+        else
+            ""
 
 
 type alias Screen =
