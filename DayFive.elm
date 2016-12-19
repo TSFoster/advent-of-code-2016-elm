@@ -7,8 +7,8 @@ import Debug exposing (log)
 
 answers : List QandA
 answers =
-    [ QandA (Question "Day 5 part 1") part1
-    , QandA (Question "Day 5 part 2") part2
+    [ QandA (Question "Day 5 part 1 (WARNING: takes a long time)") part1
+    , QandA (Question "Day 5 part 2 (WARNING: takes a really long time)") part2
     ]
 
 
