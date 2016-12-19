@@ -7,6 +7,7 @@ import Regex exposing (find, regex, HowMany(..))
 answers : List QandA
 answers =
     [ QandA (Question "Day 9 part 1") part1
+    , QandA (Question "Day 9 part 2") part2
     ]
 
 
@@ -16,6 +17,16 @@ part1 =
         (\() ->
             getInstructions input
                 |> processInstructions (String.length input)
+                |> toString
+        )
+
+
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            getInstructions input
+                |> processInstructionsV2 (String.length input)
                 |> toString
         )
 
@@ -46,6 +57,29 @@ processInstructions length list =
                     length + repeatLength * (repeatCount - 1) - instructionLength
             in
                 processInstructions newLength newList
+
+
+processInstructionsV2 : Int -> List Instruction -> Int
+processInstructionsV2 length list =
+    case list of
+        [] ->
+            length
+
+        { instructionLength, indexEnd, repeatLength, repeatCount } :: instructions ->
+            let
+                isToBeRepeated instruction =
+                    instruction.indexEnd <= (indexEnd + repeatLength)
+
+                ( toBeRepeated, newList ) =
+                    span isToBeRepeated instructions
+
+                expandedRepeatLength =
+                    processInstructionsV2 repeatLength toBeRepeated
+
+                newLength =
+                    length + expandedRepeatLength * repeatCount - instructionLength - repeatLength
+            in
+                processInstructionsV2 newLength newList
 
 
 getInstructions : String -> List Instruction
@@ -88,6 +122,23 @@ dropWhile fn list =
                 dropWhile fn xs
             else
                 x :: xs
+
+
+span : (a -> Bool) -> List a -> ( List a, List a )
+span fn =
+    let
+        spanMemo memo list =
+            case list of
+                [] ->
+                    ( List.reverse memo, [] )
+
+                x :: xs ->
+                    if fn x then
+                        spanMemo (x :: memo) xs
+                    else
+                        ( List.reverse memo, list )
+    in
+        spanMemo []
 
 
 input : String
