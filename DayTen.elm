@@ -8,6 +8,7 @@ import Debug
 answers : List QandA
 answers =
     [ QandA (Question "Day 10 part 1") part1
+    , QandA (Question "Day 10 part 2") part2
     ]
 
 
@@ -19,6 +20,17 @@ part1 =
                 |> whichBotCompares61and17
                 |> Maybe.map toString
                 |> Maybe.withDefault "61 and 17 were not compared"
+        )
+
+
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            initFromRules input
+                |> productOfFirstThreeOutputs
+                |> Maybe.map toString
+                |> Maybe.withDefault "Could not step till first three outputs have chips"
         )
 
 
@@ -83,6 +95,31 @@ whichBotCompares61and17 state =
 
             Just id ->
                 Just id
+
+
+productOfFirstThreeOutputs : State -> Maybe Int
+productOfFirstThreeOutputs ({ outputs } as state) =
+    let
+        getChip id =
+            outputs
+                |> Dict.get id
+                |> Maybe.map List.reverse
+                |> Maybe.andThen List.head
+
+        firstThreeOutputs =
+            Maybe.map3 (,,) (getChip 0) (getChip 1) (getChip 2)
+    in
+        case firstThreeOutputs of
+            Nothing ->
+                case step state of
+                    New newState ->
+                        productOfFirstThreeOutputs newState
+
+                    Unchanged ->
+                        Nothing
+
+            Just ( a, b, c ) ->
+                Just <| a * b * c
 
 
 step : State -> NewState
