@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Html exposing (Html, ul, li, text, strong, button, beginnerProgram)
+import Html exposing (Html, ul, li, text, strong, button, div, beginnerProgram)
 import Html.Events exposing (onClick)
 import Model exposing (..)
 import DayOne
@@ -34,9 +34,10 @@ main =
 
 view : Model -> Html Msg
 view (Model answers) =
-    answers
-        |> List.indexedMap toLi
-        |> ul []
+    div []
+        [ text "N.B. For answers that take a long time to calculate, check the console for progress"
+        , ul [] (List.indexedMap toLi answers)
+        ]
 
 
 update : Msg -> Model -> Model
