@@ -7,6 +7,7 @@ import Set exposing (Set)
 answers : List QandA
 answers =
     [ QandA (Question "Day 11 part 1") part1
+    , QandA (Question "Day 11 part 2") part2
     ]
 
 
@@ -32,6 +33,8 @@ type Element
     | Thulium
     | Ruthenium
     | Curium
+    | Elerium
+    | Dilithium
 
 
 part1 : Answer
@@ -39,6 +42,16 @@ part1 =
     Uncalculated
         (\() ->
             movesFromSolution start
+                |> Maybe.map toString
+                |> Maybe.withDefault "No solution found"
+        )
+
+
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            movesFromSolution startWithExtra
                 |> Maybe.map toString
                 |> Maybe.withDefault "No solution found"
         )
@@ -283,3 +296,16 @@ start =
             []
     in
         { below = [], current = first, above = [ second, third, fourth ] }
+
+
+startWithExtra : Building
+startWithExtra =
+    { start
+        | current =
+            start.current
+                ++ [ Generator Elerium
+                   , Generator Dilithium
+                   , Microchip Elerium
+                   , Microchip Dilithium
+                   ]
+    }
