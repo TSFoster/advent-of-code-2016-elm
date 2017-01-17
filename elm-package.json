@@ -1,5 +1,5 @@
 {
-    "version": "0.14.2",
+    "version": "0.15.1",
     "summary": "My solutions to Advent of Code 2016, in Elm",
     "repository": "https://github.com/TSFoster/advent-of-code-2016-elm.git",
     "license": "MIT",
