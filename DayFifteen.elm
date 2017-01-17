@@ -6,6 +6,7 @@ import Model exposing (..)
 answers : List QandA
 answers =
     [ QandA (Question "Day 15 part 1") part1
+    , QandA (Question "Day 15 part 2") part2
     ]
 
 
@@ -21,6 +22,15 @@ part1 =
     Uncalculated
         (\() ->
             nextTimeDiscsAlign input 0
+                |> toString
+        )
+
+
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            nextTimeDiscsAlign (input ++ [ Disc 7 11 0 ]) 0
                 |> toString
         )
 
