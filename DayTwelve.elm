@@ -7,6 +7,7 @@ import Dict exposing (Dict)
 answers : List QandA
 answers =
     [ QandA (Question "Day 12 part 1") part1
+    , QandA (Question "Day 12 part 2") part2
     ]
 
 
@@ -14,11 +15,19 @@ part1 : Answer
 part1 =
     Uncalculated
         (\() ->
-            init
-                |> finalState
-                |> .registers
-                |> get (Register "a")
-                |> toString
+            toString <| registerAAfterExecution init
+        )
+
+
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            let
+                newInit =
+                    { init | registers = set "c" 1 init.registers }
+            in
+                toString <| registerAAfterExecution newInit
         )
 
 
@@ -47,6 +56,13 @@ type Instruction
     | Inc RegisterName
     | Dec RegisterName
     | Jnz Val Int
+
+
+registerAAfterExecution : Model -> Int
+registerAAfterExecution =
+    finalState
+        >> .registers
+        >> get (Register "a")
 
 
 finalState : Model -> Model
