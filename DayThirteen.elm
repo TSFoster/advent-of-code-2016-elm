@@ -9,6 +9,7 @@ import AStar.Generalised exposing (findPath)
 answers : List QandA
 answers =
     [ QandA (Question "Day 13 part 1") part1
+    , QandA (Question "Day 13 part 2") part2
     ]
 
 
@@ -24,6 +25,31 @@ part1 =
                 |> Maybe.map (List.length >> toString)
                 |> Maybe.withDefault "No solution found"
         )
+
+
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            positionsAfterMaxSteps 50 (Set.singleton ( 1, 1 ))
+                |> Set.size
+                |> toString
+        )
+
+
+positionsAfterMaxSteps : Int -> Set Position -> Set Position
+positionsAfterMaxSteps i steps =
+    if i < 1 then
+        steps
+    else
+        let
+            newSteps =
+                steps
+                    |> Set.toList
+                    |> List.map movesFrom
+                    |> List.foldl Set.union steps
+        in
+            positionsAfterMaxSteps (i - 1) newSteps
 
 
 costFn : Position -> Position -> Float
