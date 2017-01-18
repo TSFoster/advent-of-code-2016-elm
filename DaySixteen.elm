@@ -6,6 +6,7 @@ import Model exposing (..)
 answers : List QandA
 answers =
     [ QandA (Question "Day 16 part 1") part1
+    , QandA (Question "Day 16 part 2 (WARNING: takes a long time)") part2
     ]
 
 
@@ -16,6 +17,17 @@ part1 =
             input
                 |> toBinary
                 |> checksumForExpanded 272
+                |> binaryToString
+        )
+
+
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            input
+                |> toBinary
+                |> checksumForExpanded 35651584
                 |> binaryToString
         )
 
@@ -51,12 +63,17 @@ checksumStep =
 
 pairs : List Binary -> List ( Binary, Binary )
 pairs data =
-    case data of
-        x :: y :: rest ->
-            ( x, y ) :: pairs rest
+    let
+        pairsMemo : List ( Binary, Binary ) -> List Binary -> List ( Binary, Binary )
+        pairsMemo memo data =
+            case data of
+                x :: y :: rest ->
+                    pairsMemo (( x, y ) :: memo) rest
 
-        _ ->
-            []
+                _ ->
+                    List.reverse memo
+    in
+        pairsMemo [] data
 
 
 expandDataToFit : Int -> List Binary -> List Binary
