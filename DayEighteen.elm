@@ -6,7 +6,16 @@ import Model exposing (..)
 answers : List QandA
 answers =
     [ QandA (Question "Day 18 part 1") part1
+    , QandA (Question "Day 18 part 2") part2
     ]
+
+
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            toString <| safeTilesInFloorStarting initialRow 400000
+        )
 
 
 part1 : Answer
