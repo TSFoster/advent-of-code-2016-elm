@@ -9,6 +9,7 @@ import MD5
 answers : List QandA
 answers =
     [ QandA (Question "Day 17 part 1") part1
+    , QandA (Question "Day 17 part 2 (WARNING: takes a long time)") part2
     ]
 
 
@@ -17,6 +18,14 @@ part1 =
     Uncalculated
         (\() ->
             String.fromList <| shortestPath [ init ]
+        )
+
+
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            toString <| longestPath 0 [ init ]
         )
 
 
@@ -38,6 +47,32 @@ type alias Position =
 
 type alias State =
     ( Position, Path )
+
+
+longestPath : Int -> List State -> Int
+longestPath soFar states =
+    case states of
+        [] ->
+            soFar
+
+        state :: rest ->
+            if reachedEnd state then
+                let
+                    newPathLength =
+                        pathLength state
+
+                    ( newSoFar, _ ) =
+                        ( max soFar newPathLength, newPathLength )
+                            |> Debug.log "(Best path, new path found)"
+                in
+                    longestPath newSoFar rest
+            else
+                longestPath soFar (step state ++ rest)
+
+
+pathLength : State -> Int
+pathLength =
+    List.length << Tuple.second
 
 
 shortestPath : List State -> Path
