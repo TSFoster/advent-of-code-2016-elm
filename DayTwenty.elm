@@ -6,6 +6,7 @@ import Model exposing (..)
 answers : List QandA
 answers =
     [ QandA (Question "Day 20 part 1") part1
+    , QandA (Question "Day 20 part 2") part2
     ]
 
 
@@ -17,6 +18,26 @@ part1 =
                 |> lowestAvailable 0
                 |> toString
         )
+
+
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            normalize input
+                |> countValid
+                |> toString
+        )
+
+
+countValid : List ( Int, Int ) -> Int
+countValid =
+    let
+        count : ( Int, Int ) -> ( Int, Int ) -> ( Int, Int )
+        count ( lower, upper ) ( validSoFar, totalSoFar ) =
+            ( validSoFar + (lower - totalSoFar), upper + 1 )
+    in
+        Tuple.first << List.foldl count ( 0, 0 )
 
 
 normalize : List ( Int, Int ) -> List ( Int, Int )
