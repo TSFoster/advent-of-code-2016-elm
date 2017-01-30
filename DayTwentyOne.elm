@@ -6,6 +6,7 @@ import Model exposing (..)
 answers : List QandA
 answers =
     [ QandA (Question "Day 21 part 1") part1
+    , QandA (Question "Day 21 part 2") part2
     ]
 
 
@@ -17,6 +18,14 @@ part1 =
         )
 
 
+part2 : Answer
+part2 =
+    Uncalculated
+        (\() ->
+            String.fromList <| unscramble (String.toList "fbgdceah") input
+        )
+
+
 type Instruction
     = MovePosition Int Int
     | ReversePositions Int Int
@@ -25,6 +34,12 @@ type Instruction
     | RotateBasedOn Char
     | RotateRight Int
     | RotateLeft Int
+    | UnrotateBasedOn Char
+
+
+unscramble : List Char -> List Instruction -> List Char
+unscramble password instructions =
+    List.foldr process password (List.map inverse instructions)
 
 
 scramble : List Char -> List Instruction -> List Char
@@ -136,6 +151,14 @@ process instruction chars =
             in
                 List.drop i chars ++ List.take i chars
 
+        UnrotateBasedOn c ->
+            List.range 0 (List.length chars)
+                |> List.map (process << RotateLeft)
+                |> List.map ((|>) chars)
+                |> List.filter (\newChars -> process (RotateBasedOn c) newChars == chars)
+                |> List.head
+                |> Maybe.withDefault chars
+
 
 firstOccurrence : a -> List a -> Maybe Int
 firstOccurrence =
@@ -153,6 +176,34 @@ firstOccurrence =
                         firstOccurrenceMemo (count + 1) elem rest
     in
         firstOccurrenceMemo 0
+
+
+inverse : Instruction -> Instruction
+inverse instruction =
+    case instruction of
+        MovePosition a b ->
+            MovePosition b a
+
+        ReversePositions a b ->
+            ReversePositions a b
+
+        SwapPosition a b ->
+            SwapPosition a b
+
+        SwapLetter a b ->
+            SwapLetter a b
+
+        RotateBasedOn c ->
+            UnrotateBasedOn c
+
+        RotateRight i ->
+            RotateLeft i
+
+        RotateLeft i ->
+            RotateRight i
+
+        UnrotateBasedOn c ->
+            RotateBasedOn c
 
 
 password : List Char
